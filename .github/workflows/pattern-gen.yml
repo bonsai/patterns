@@ -1,0 +1,60 @@
+name: pattern-gen
+on:
+  workflow_dispatch:
+    inputs:
+      seed:
+        type: string
+        default: "1"
+        description: 生成シード（文字列）
+      style:
+        type: choice
+        default: stripes
+        description: 模様スタイル
+        options:
+          - stripes
+          - circles
+          - grid
+          - waves
+          - mosaic
+      size:
+        type: number
+        default: 256
+        description: SVG サイズ（16-1024）
+      auto:
+        type: boolean
+        default: false
+        description: シード自動生成（ランダム）
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve seed
+        id: seed
+        run: |
+          if [ "${{ github.event.inputs.auto }}" = "true" ]; then
+            echo "seed=$RANDOM-$RANDOM" >> "$GITHUB_OUTPUT"
+          else
+            echo "seed=${{ github.event.inputs.seed }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate SVG
+        run: node scripts/generate.js --seed "${{ steps.seed.outputs.seed }}" --style "${{ github.event.inputs.style }}" --size ${{ github.event.inputs.size }}
+
+      - name: Commit & push
+        run: |
+          git config user.name "aw-pattern-gen"
+          git config user.email "aw-pattern-gen@users.noreply.github.com"
+          git add patterns/
+          if git diff --cached --quiet; then
+            echo "no changes"
+            exit 0
+          fi
+          git commit -m "pattern-gen: seed=${{ steps.seed.outputs.seed }} style=${{ github.event.inputs.style }} size=${{ github.event.inputs.size }}"
+          git push origin HEAD:main
