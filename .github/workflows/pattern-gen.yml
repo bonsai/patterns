@@ -35,6 +35,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Dump inputs
+        run: echo "inputs=$(toJson(github.event.inputs))"
+
       - name: Resolve seed
         id: seed
         run: |
