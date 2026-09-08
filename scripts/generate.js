@@ -22,8 +22,10 @@ function hashSeed(s) {
 function parseArgs(argv) {
   const out = {};
   for (let i = 2; i < argv.length; i++) {
-    const m = /^--([^=]+)=(.*)$/.exec(argv[i]);
-    if (m) out[m[1]] = m[2];
+    const em = /^--([^=]+)=(.*)$/.exec(argv[i]);
+    if (em) { out[em[1]] = em[2]; continue; }
+    const sm = /^--([^=]+)$/.exec(argv[i]);
+    if (sm) { out[sm[1]] = argv[i + 1] || ""; i++; }
   }
   return out;
 }

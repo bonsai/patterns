@@ -1,5 +1,11 @@
 [
   {
+    "seed": "gym",
+    "style": "waves",
+    "size": 256,
+    "created_at": "2026-09-08T06:06:24.618Z"
+  },
+  {
     "seed": "1",
     "style": "stripes",
     "size": 256,
